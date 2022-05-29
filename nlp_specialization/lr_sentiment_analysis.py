@@ -30,6 +30,7 @@ nltk.data.path.append(filePath)
 # FUNCTIONS #
 #############
 
+
 def process_tweet(tweet):
     stemmer = PorterStemmer()
     stopwords_english = stopwords.words('english')
@@ -57,6 +58,7 @@ def process_tweet(tweet):
 
     return tweets_clean
 
+
 def build_freqs(tweets, ys):
     # Convert np array to list since zip needs an iterable.
     # The squeeze is necessary or the list ends up with one element.
@@ -76,10 +78,12 @@ def build_freqs(tweets, ys):
 
     return freqs
 
+
 def sigmoid(z):
-    h = 1/(1+np.exp(-z))
+    h = 1 / (1 + np.exp(-z))
 
     return h
+
 
 def gradient_descent(x, y, theta, alpha, num_iters):
     # get 'm', the number of rows in matrix x
@@ -95,14 +99,15 @@ def gradient_descent(x, y, theta, alpha, num_iters):
 
         # calculate the cost function
         p1 = np.dot(y.T, np.log(h))
-        p2 = np.dot((1-y).T, np.log(1-h))
-        J = -float(1)/m*(p1+p2)
+        p2 = np.dot((1 - y).T, np.log(1 - h))
+        J = -float(1) / m * (p1 + p2)
 
         # update the weights theta
-        theta -= alpha/m * np.dot(x.T, (h-y))
+        theta -= alpha / m * np.dot(x.T, (h - y))
 
     J = float(J)
     return J, theta
+
 
 def extract_features(tweet, freqs, process_tweet=process_tweet):
     # process_tweet tokenizes, stems, and removes stopwords
@@ -111,8 +116,8 @@ def extract_features(tweet, freqs, process_tweet=process_tweet):
     # 3 elements in the form of a 1 x 3 vector
     x = np.zeros((1, 3))
 
-    #bias term is set to 1
-    x[0,0] = 1
+    # bias term is set to 1
+    x[0, 0] = 1
 
     # loop through each word in the list of words
     for word in word_l:
@@ -121,13 +126,14 @@ def extract_features(tweet, freqs, process_tweet=process_tweet):
         key_neg = (word, 0)
 
         # increment the word count for the positive label 1
-        x[0,1] += freqs.get(key_pos, 0)
+        x[0, 1] += freqs.get(key_pos, 0)
 
         # increment the word count for the negative label 0
-        x[0,2] += freqs.get(key_neg, 0)
+        x[0, 2] += freqs.get(key_neg, 0)
 
     assert(x.shape == (1, 3))
     return x
+
 
 def predict_tweet(tweet, freqs, theta):
     # extract the features of the tweet and store it into x
@@ -137,6 +143,7 @@ def predict_tweet(tweet, freqs, theta):
     y_pred = sigmoid(np.dot(x, theta))
 
     return y_pred
+
 
 def test_logistic_regression(test_x, test_y, freqs, theta, predict_tweet=predict_tweet):
     # the list for storing predictions
@@ -163,6 +170,7 @@ def test_logistic_regression(test_x, test_y, freqs, theta, predict_tweet=predict
 # TRAINING and TESTING #
 ########################
 
+
 # select the set of positive and negative tweets
 all_positive_tweets = twitter_samples.strings('positive_tweets.json')
 all_negative_tweets = twitter_samples.strings('negative_tweets.json')
@@ -177,8 +185,10 @@ train_x = train_pos + train_neg
 test_x = test_pos + test_neg
 
 # combine positive and negative labels
-train_y = np.append(np.ones((len(train_pos), 1)), np.zeros((len(train_neg), 1)), axis=0)
-test_y = np.append(np.ones((len(test_pos), 1)), np.zeros((len(test_neg), 1)), axis=0)
+train_y = np.append(np.ones((len(train_pos), 1)),
+                    np.zeros((len(train_neg), 1)), axis=0)
+test_y = np.append(np.ones((len(test_pos), 1)),
+                   np.zeros((len(test_neg), 1)), axis=0)
 
 # create frequency dictionary
 freqs = build_freqs(train_x, train_y)
@@ -186,7 +196,7 @@ freqs = build_freqs(train_x, train_y)
 # collect the features 'x' and stack them into a matrix 'X'
 X = np.zeros((len(train_x), 3))
 for i in range(len(train_x)):
-    X[i, :]= extract_features(train_x[i], freqs)
+    X[i, :] = extract_features(train_x[i], freqs)
 
 # training labels corresponding to X
 Y = train_y
